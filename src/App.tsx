@@ -5,12 +5,15 @@ import { AboutScreen } from './screens/AboutScreen';
 import { useGame } from './game/useGame';
 import { useHistory } from './history/useHistory';
 import { createResult } from './history/historyStorage';
+import { useUpdatePrompt } from './pwa/useUpdatePrompt';
+import { UpdateSnackbar } from './components/UpdateSnackbar';
 
 export function App() {
   const [screen, setScreen] = useState<ScreenId>('home');
   // Held here so switching screens does not unmount the game (ADR-2)
   const game = useGame();
   const history = useHistory();
+  const { needRefresh, refresh } = useUpdatePrompt();
 
   // Record each finished game once; the ref guards against Strict Mode double effects (ADR-4)
   const { status, gameId, completedRounds } = game.state;
@@ -34,6 +37,9 @@ export function App() {
         <HomeScreen game={game} />
       ) : (
         <AboutScreen history={history} />
+      )}
+      {needRefresh && status !== 'presenting' && status !== 'awaitingInput' && status !== 'paused' && (
+        <UpdateSnackbar onRefresh={refresh} />
       )}
       <NavBar screen={screen} onNavigate={navigate} />
     </div>

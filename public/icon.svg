@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0A1628"/>
+  <!-- Board radius 200 (~78% of canvas), inside the maskable safe zone; 12px gaps between quadrants -->
+  <path d="M250 250 L250 56 A200 200 0 0 0 56 250 Z" fill="#00D26A"/>
+  <path d="M262 250 L262 56 A200 200 0 0 1 456 250 Z" fill="#FF3B30"/>
+  <path d="M250 262 L56 262 A200 200 0 0 0 250 456 Z" fill="#FFD600"/>
+  <path d="M262 262 L262 456 A200 200 0 0 0 456 262 Z" fill="#00A3FF"/>
+  <circle cx="256" cy="256" r="72" fill="#0A1628"/>
+</svg>

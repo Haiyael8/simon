@@ -80,3 +80,5 @@ desktop.ini
 tmp/
 temp/
 *.tmp
+
+dev-dist/
