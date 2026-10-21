@@ -369,7 +369,7 @@ describe('game flow', () => {
     expect(screen.queryByRole('button', { name: 'המשך משחק' })).toBeNull();
   });
 
-  it('does not write to persistent storage during a game', async () => {
+  it('writes only the history key, never the active game state', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     queueColors(['green']);
     render(<App />);
@@ -377,6 +377,6 @@ describe('game flow', () => {
     await advance(1600);
     await tap('red');
     await advance(1000);
-    expect(setItem).not.toHaveBeenCalled();
+    expect(setItem.mock.calls.map(([key]) => key)).toEqual(['simon.history.v1']);
   });
 });

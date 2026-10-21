@@ -19,3 +19,70 @@
   color: var(--soft-gray);
   font-size: 14px;
 }
+
+.about__error {
+  margin-bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--red);
+  border-radius: var(--radius-card);
+  font-size: 14px;
+}
+
+.about__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.history-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-card__rounds {
+  font-weight: 700;
+}
+
+.history-card__outcome {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.history-card__outcome--win {
+  color: var(--green);
+}
+
+.history-card__outcome--loss {
+  color: #ff6b62;
+}
+
+.history-card__time {
+  font-size: 13px;
+  color: var(--soft-gray);
+  direction: ltr;
+}
+
+.about__clear {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-3);
+  padding: 12px var(--space-3);
+  border: 1px solid var(--blue);
+  border-radius: var(--radius-button);
+  background: transparent;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
