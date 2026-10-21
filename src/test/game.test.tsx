@@ -218,7 +218,7 @@ describe('game flow', () => {
     expect(stop).toHaveBeenCalledTimes(1);
   });
 
-  it('leaving to About mid-game cancels everything and Home is back to idle', async () => {
+  it('leaving to About while presenting pauses; Home shows Resume and does not auto-play', async () => {
     queueColors(['green', 'red']);
     render(<App />);
     await startGame();
@@ -229,8 +229,144 @@ describe('game flow', () => {
     await advance(10000);
     expect(audio.startTone).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'בית' }));
-    expect(screen.getByRole('button', { name: 'התחל משחק' })).toBeInTheDocument();
+    expect(screen.getByText('המשחק מושהה')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'התחל משחק' })).toBeNull();
     expect(screen.getByText('שלב 1 מתוך 10')).toBeInTheDocument();
+    await advance(10000);
+    expect(audio.startTone).not.toHaveBeenCalled();
+    expect(screen.queryByText('נפסלת!')).toBeNull();
+  });
+
+  it('Resume replays the whole sequence of the same stage after partial input', async () => {
+    queueColors(['green', 'red']);
+    render(<App />);
+    await startGame();
+    await playRound(['green'], 1000);
+    await advance(2000 + presentationMs(2));
+    await tap('green');
+    fireEvent.click(screen.getByRole('button', { name: 'אודות' }));
+    fireEvent.click(screen.getByRole('button', { name: 'בית' }));
+    expect(screen.getByText('שלב 2 מתוך 10')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'אדום' })).toBeDisabled();
+
+    vi.mocked(audio.startTone).mockClear();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'המשך משחק' }));
+    });
+    expect(screen.queryByRole('button', { name: 'המשך משחק' })).toBeNull();
+    await advance(1000);
+    expect(audio.startTone).toHaveBeenLastCalledWith('green');
+    await advance(600 + 250);
+    expect(audio.startTone).toHaveBeenLastCalledWith('red');
+    expect(audio.startTone).toHaveBeenCalledTimes(2);
+    await advance(600);
+    expect(screen.getByText('התור שלך')).toBeInTheDocument();
+    expect(screen.getByText('שלב 2 מתוך 10')).toBeInTheDocument();
+    await tap('green');
+    await tap('red');
+    await advance(2000);
+    expect(screen.getByText('שלב 3 מתוך 10')).toBeInTheDocument();
+  });
+
+  it('pausing mid-input is not a loss', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1600);
+    fireEvent.click(screen.getByRole('button', { name: 'אודות' }));
+    await advance(5000);
+    fireEvent.click(screen.getByRole('button', { name: 'בית' }));
+    expect(screen.queryByText('נפסלת!')).toBeNull();
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+  });
+
+  it('hiding the app pauses and returning does not resume', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1200);
+    const hidden = vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    expect(audio.stopAll).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+    vi.mocked(audio.startTone).mockClear();
+    hidden.mockReturnValue(false);
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await advance(5000);
+    expect(audio.startTone).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+    hidden.mockRestore();
+  });
+
+  it('pagehide pauses an active game', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1200);
+    act(() => {
+      window.dispatchEvent(new Event('pagehide'));
+    });
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+  });
+
+  it('stays paused with an error when audio cannot resume, and ignores double taps', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1200);
+    fireEvent.click(screen.getByRole('button', { name: 'אודות' }));
+    fireEvent.click(screen.getByRole('button', { name: 'בית' }));
+    vi.mocked(audio.unlockAudio).mockResolvedValueOnce(false);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'המשך משחק' }));
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent('לא הצלחנו להפעיל צליל');
+    expect(screen.getByRole('button', { name: 'המשך משחק' })).toBeInTheDocument();
+
+    vi.mocked(audio.unlockAudio).mockClear();
+    await act(async () => {
+      const button = screen.getByRole('button', { name: 'המשך משחק' });
+      fireEvent.click(button);
+      fireEvent.click(button);
+    });
+    expect(audio.unlockAudio).toHaveBeenCalledTimes(1);
+    vi.mocked(audio.startTone).mockClear();
+    await advance(1000);
+    expect(audio.startTone).toHaveBeenCalledTimes(1);
+  });
+
+  it('a decisive press while away keeps the result and shows the message on return', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1600);
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'אדום' }), { pointerId: 1 });
+    fireEvent.pointerUp(window, { pointerId: 1 });
+    fireEvent.click(screen.getByRole('button', { name: 'אודות' }));
+    await advance(2000);
+    fireEvent.click(screen.getByRole('button', { name: 'בית' }));
+    expect(screen.getByText('נפסלת!')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'המשך משחק' })).toBeNull();
+  });
+
+  it('leaving to About with the end message open returns to the start state', async () => {
+    queueColors(['green']);
+    render(<App />);
+    await startGame();
+    await advance(1600);
+    await tap('red');
+    await advance(1000);
+    expect(screen.getByText('נפסלת!')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'אודות' }));
+    fireEvent.click(screen.getByRole('button', { name: 'בית' }));
+    expect(screen.queryByText('נפסלת!')).toBeNull();
+    expect(screen.getByRole('button', { name: 'התחל משחק' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'המשך משחק' })).toBeNull();
   });
 
   it('does not write to persistent storage during a game', async () => {

@@ -22,12 +22,13 @@ export function HomeScreen({ game }: Props) {
       <Board
         litColor={litColor}
         interactive={status === 'awaitingInput'}
-        dimmed={status === 'presenting'}
+        dimmed={status === 'presenting' || status === 'paused'}
         onPressStart={game.pressStart}
         onPressEnd={game.pressEnd}
       />
       <div className="home__status" aria-live="polite">
         {status === 'presenting' && <p>המשחק מציג את הרצף</p>}
+        {status === 'paused' && <p>המשחק מושהה</p>}
         {status === 'awaitingInput' && (
           <>
             <p>התור שלך</p>
@@ -36,6 +37,20 @@ export function HomeScreen({ game }: Props) {
         )}
       </div>
       <div className="home__action">
+        {status === 'paused' && (
+          <>
+            <button type="button" className="btn-primary"
+              onClick={() => void game.resumeGame()}
+            >
+              המשך משחק
+            </button>
+            {audioError && (
+              <p className="home__error" role="alert">
+                לא הצלחנו להפעיל צליל. נסו שוב.
+              </p>
+            )}
+          </>
+        )}
         {status === 'idle' && (
           <>
             <button type="button" className="btn-primary btn-primary--purple"

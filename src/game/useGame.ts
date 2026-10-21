@@ -38,9 +38,11 @@ export function useGame() {
   const [audioError, setAudioError] = useState(false);
 
   const stateRef = useRef(state);
+  const resultVisibleRef = useRef(false);
   useEffect(() => {
     stateRef.current = state;
-  }, [state]);
+    resultVisibleRef.current = resultVisible;
+  }, [state, resultVisible]);
 
   const press = useRef<{ stop: () => void; startedAt: number; timer?: number } | null>(
     null,
@@ -144,13 +146,46 @@ export function useGame() {
 
   const dismiss = useCallback(() => dispatch({ type: 'dismiss' }), []);
 
-  // Temporary until Milestone 3: leaving the Home screen cancels the game
-  const leaveGame = useCallback(() => {
+  // Freezes an active game; finished or unstarted games are left alone
+  const pauseGame = useCallback(() => {
+    const status = stateRef.current.status;
+    if (status !== 'presenting' && status !== 'awaitingInput') return;
     releasePress();
     stopAll();
-    dispatch({ type: 'abandon' });
-    dispatch({ type: 'dismiss' });
+    dispatch({ type: 'pause' });
   }, [releasePress]);
+
+  // Leaving Home: pause, and drop an end message that was already on screen
+  const leaveGame = useCallback(() => {
+    pauseGame();
+    if (resultVisibleRef.current) dispatch({ type: 'dismiss' });
+  }, [pauseGame]);
+
+  const resuming = useRef(false);
+  const resumeGame = useCallback(async () => {
+    if (stateRef.current.status !== 'paused' || resuming.current) return;
+    resuming.current = true;
+    try {
+      const ok = await unlockAudio();
+      setAudioError(!ok);
+      if (ok) dispatch({ type: 'resume' });
+    } finally {
+      resuming.current = false;
+    }
+  }, []);
+
+  // Hiding the app pauses the game; coming back does nothing on its own
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) pauseGame();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', pauseGame);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', pauseGame);
+    };
+  }, [pauseGame]);
 
   return {
     state,
@@ -162,6 +197,7 @@ export function useGame() {
     pressEnd,
     dismiss,
     leaveGame,
+    resumeGame,
     maxRounds: MAX_ROUNDS,
   };
 }

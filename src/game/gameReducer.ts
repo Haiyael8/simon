@@ -1,7 +1,13 @@
 import type { ColorId } from './colors';
 import { MAX_ROUNDS } from './config';
 
-export type GameStatus = 'idle' | 'presenting' | 'awaitingInput' | 'won' | 'lost';
+export type GameStatus =
+  | 'idle'
+  | 'presenting'
+  | 'awaitingInput'
+  | 'paused'
+  | 'won'
+  | 'lost';
 
 export type GameState = {
   status: GameStatus;
@@ -20,9 +26,9 @@ export type GameAction =
   | { type: 'presentationDone'; id: number }
   | { type: 'press'; color: ColorId }
   | { type: 'advanceRound'; id: number; nextColor: ColorId }
-  | { type: 'dismiss' }
-  // Temporary until Milestone 3 replaces it with a real pause
-  | { type: 'abandon' };
+  | { type: 'pause' }
+  | { type: 'resume' }
+  | { type: 'dismiss' };
 
 export const initialGameState: GameState = {
   status: 'idle',
@@ -105,10 +111,27 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.status !== 'won' && state.status !== 'lost') return state;
       return reset(state);
 
-    case 'abandon':
+    case 'pause':
       if (state.status !== 'presenting' && state.status !== 'awaitingInput') {
         return state;
       }
-      return reset(state);
+      return {
+        ...state,
+        status: 'paused',
+        inputIndex: 0,
+        // A stage cleared just before the pause is replayed in full, without a new color
+        completedRounds: state.pendingAdvance ? state.round - 1 : state.completedRounds,
+        pendingAdvance: false,
+        presentationId: state.presentationId + 1,
+      };
+
+    case 'resume':
+      if (state.status !== 'paused') return state;
+      return {
+        ...state,
+        status: 'presenting',
+        inputIndex: 0,
+        presentationId: state.presentationId + 1,
+      };
   }
 }
