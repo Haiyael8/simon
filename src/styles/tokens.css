@@ -1,0 +1,23 @@
+:root {
+  --green: #00d26a;
+  --red: #ff3b30;
+  --yellow: #ffd600;
+  --blue: #00a3ff;
+  --charcoal: #0f0f0f;
+  --soft-gray: #e5e5e5;
+  --white: #ffffff;
+
+  --bg: #0a1628;
+  --surface: #12213a;
+  --border: #1e3556;
+
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+
+  --radius-card: 16px;
+  --radius-button: 16px;
+
+  --font: 'Heebo', Arial, sans-serif;
+}

@@ -1,0 +1,27 @@
+.navbar {
+  display: flex;
+  gap: var(--space-1);
+  margin: 0 var(--space-3);
+  margin-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+  padding: var(--space-1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.navbar__item {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: var(--space-2) var(--space-1);
+  background: transparent;
+  color: var(--soft-gray);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.navbar__item[aria-current='page'] {
+  background: var(--blue);
+  color: var(--white);
+}

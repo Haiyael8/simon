@@ -1,0 +1,81 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  overflow-x: hidden;
+}
+
+.screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+}
+
+.screen-title {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-3);
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--blue);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px var(--space-4);
+  box-shadow: 0 6px 16px rgba(0, 163, 255, 0.35);
+  cursor: pointer;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+}
