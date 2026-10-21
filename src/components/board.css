@@ -23,6 +23,31 @@
   padding: 0;
   cursor: pointer;
   background: var(--quadrant-color);
+  transition: filter 80ms ease-out, box-shadow 80ms ease-out;
+  -webkit-touch-callout: none;
+}
+
+.board__quadrant:disabled {
+  cursor: default;
+}
+
+/* During playback only the lit quadrant keeps full color */
+.board--dimmed .board__quadrant {
+  filter: brightness(0.35);
+}
+
+.board__quadrant--lit,
+.board--dimmed .board__quadrant--lit {
+  filter: brightness(1.15);
+  box-shadow: 0 0 28px var(--quadrant-color);
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board__quadrant {
+    transition: none;
+  }
 }
 
 /* Only the outer corner of each quadrant is rounded */

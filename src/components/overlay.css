@@ -1,0 +1,39 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  background: rgba(10, 22, 40, 0.6);
+}
+
+.overlay__card {
+  width: min(100%, 320px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-4);
+  border-color: var(--blue);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.overlay__title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.overlay__title--won {
+  color: var(--green);
+}
+
+.overlay__title--lost {
+  color: var(--red);
+}
+
+.overlay__detail {
+  font-size: 16px;
+  color: var(--soft-gray);
+}

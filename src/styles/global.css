@@ -73,6 +73,11 @@ button {
   cursor: pointer;
 }
 
+.btn-primary--purple {
+  background: var(--purple);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+}
+
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
