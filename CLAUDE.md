@@ -59,3 +59,4 @@
 > Claude ממלא זאת ברגע שהאפליקציה יכולה לרוץ (בדרך כלל בסיום Milestone 1), ומעדכן אם משהו משתנה.
 - **הרצה (dev):** `npm run dev` — נפתח בכתובת `http://localhost:5173/simon/`
 - **בדיקות (test):** `npm run test` (וגם `npm run typecheck`, `npm run build`)
+- **Production:** `https://haiyael8.github.io/simon/` — נפרס אוטומטית על ידי `.github/workflows/deploy.yml` בכל push ל-`main`.
